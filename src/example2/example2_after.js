@@ -48,16 +48,18 @@ function calculateSecondVerificationDigit(cpf, firstDigit) {
     firstDigit
   );
 
-  const sumOfCpfDigitsMultipliedByDigitPosition =
-    cpfWithoutVerificationDigitsArray.reduce((acc, current, index) => {
+  const sumOfCpfDigits = cpfWithoutVerificationDigitsArray.reduce(
+    (acc, current, index) => {
       const multiplicationFactor = index + 2;
       if (index > 11) return acc;
       const result = multiplicationFactor * Number.parseInt(current);
       return acc + result;
-    }, 0);
+    },
+    0
+  );
 
   const sumOfCpfDigitsMultipliedByDigitPositionDividedBy11Rest =
-    sumOfCpfDigitsMultipliedByDigitPosition % 11;
+    sumOfCpfDigits % 11;
 
   if (sumOfCpfDigitsMultipliedByDigitPositionDividedBy11Rest < 2) {
     return 0;
