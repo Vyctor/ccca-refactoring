@@ -3,20 +3,7 @@ function isValid(cpf) {
     throw new Error("CPF is required");
   }
 
-  cpf = formatCpf(cpf);
-
-  const firstVerificationDigit = calculateFirstVerificationDigit(cpf);
-
-  const secondVerificationDigit = calculateSecondVerificationDigit(
-    cpf,
-    firstVerificationDigit
-  );
-
-  return verifyIfCpfIsValid(
-    cpf,
-    firstVerificationDigit,
-    secondVerificationDigit
-  );
+  return verifyIfCpfIsValid(cpf);
 }
 
 function formatCpf(cpf) {
@@ -35,21 +22,24 @@ function cpfWithoutVerificationDigits(cpf) {
   return cpf.split("").slice(0, 9);
 }
 
+function sumOfCpfDigitsMultipliedByDigitPosition(cpf) {
+  return cpf.reduce(function (acc, current, index) {
+    const multiplicationFactor = index + 2;
+    if (index > 10) return acc;
+    const result = multiplicationFactor * Number.parseInt(current);
+    return acc + result;
+  }, 0);
+}
+
 function calculateFirstVerificationDigit(cpf) {
   const cpfWithoutVerificationDigitsArray =
     cpfWithoutVerificationDigits(cpf).reverse();
 
-  const sumOfCpfDigitsMultipliedByDigitPosition =
-    cpfWithoutVerificationDigitsArray.reduce((acc, current, index) => {
-      const multiplicationFactor = index + 2;
-      if (index > 10) return acc;
-      const result = multiplicationFactor * Number.parseInt(current);
-      return acc + result;
-    }, 0);
+  const sumOfCpfDigits = sumOfCpfDigitsMultipliedByDigitPosition(
+    cpfWithoutVerificationDigitsArray
+  );
 
-  return sumOfCpfDigitsMultipliedByDigitPosition % 11 < 2
-    ? 0
-    : 11 - (sumOfCpfDigitsMultipliedByDigitPosition % 11);
+  return sumOfCpfDigits % 11 < 2 ? 0 : 11 - (sumOfCpfDigits % 11);
 }
 
 function calculateSecondVerificationDigit(cpf, firstDigit) {
@@ -82,8 +72,14 @@ function addFirstDigitToCpfArray(cpf, firstDigit) {
   return cpfWithFirstDigit.reverse();
 }
 
-function verifyIfCpfIsValid(cpf, firstDigit, secondDigit) {
+function verifyIfCpfIsValid(cpf) {
+  cpf = formatCpf(cpf);
+
   let cpfDigitArray = cpf.split("");
+
+  const firstDigit = calculateFirstVerificationDigit(cpf);
+
+  const secondDigit = calculateSecondVerificationDigit(cpf, firstDigit);
 
   return (
     cpfDigitArray[9] === firstDigit.toString() &&
